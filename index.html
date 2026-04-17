@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>跨境娜娜 · 亚马逊市场分析工作台 v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0A0A0F;
+  --bg-1:#13131A;
+  --bg-2:#1B1B24;
+  --bg-3:#24242F;
+  --border:#2E2E3A;
+  --border-soft:#20202A;
+  --text-1:#EDEDF0;
+  --text-2:#A8A8B3;
+  --text-3:#6B6B78;
+  --gold:#D4AF37;
+  --gold-dim:#8B7500;
+  --gold-warm:#F5E6C8;
+  --green:#6BCF7F;
+  --orange:#F4A340;
+  --red:#E56B6F;
+  --blue:#6DA5D8;
+  --shadow:0 12px 40px rgba(0,0,0,.4);
+  --shadow-soft:0 4px 16px rgba(0,0,0,.25);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--bg-0);color:var(--text-1);font-family:"Noto Sans SC","Inter",sans-serif;font-weight:400;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--gold);color:var(--bg-0)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg-0)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-dim)}
+
+/* ========== 布局 ========== */
+.app{display:grid;grid-template-columns:260px 1fr;height:100vh;overflow:hidden}
+
+.sidebar{background:linear-gradient(180deg,var(--bg-1) 0%,var(--bg-0) 100%);border-right:1px solid var(--border-soft);padding:32px 0;display:flex;flex-direction:column;overflow-y:auto}
+.brand{padding:0 28px 28px;border-bottom:1px solid var(--border-soft)}
+.brand-mark{font-family:"Fraunces",serif;font-style:italic;font-weight:600;font-size:13px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+.brand-title{font-family:"Noto Serif SC",serif;font-weight:700;font-size:22px;color:var(--text-1);line-height:1.3}
+.brand-sub{font-size:11px;color:var(--text-3);margin-top:8px;letter-spacing:.05em}
+.brand-version{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--gold-dim);margin-top:10px}
+
+.nav{padding:24px 16px;flex:1}
+.nav-label{font-size:10px;color:var(--text-3);letter-spacing:.2em;text-transform:uppercase;padding:0 12px;margin:18px 0 8px;font-weight:600}
+.nav-label:first-child{margin-top:0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 12px;margin:2px 0;border-radius:6px;cursor:pointer;color:var(--text-2);font-size:14px;transition:all .2s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--bg-2);color:var(--text-1)}
+.nav-item.active{background:var(--bg-2);color:var(--gold-warm);border-left-color:var(--gold)}
+.nav-icon{width:18px;height:18px;flex-shrink:0;opacity:.9}
+.nav-footer{padding:20px 28px;border-top:1px solid var(--border-soft);font-size:11px;color:var(--text-3);line-height:1.7}
+.nav-footer a{color:var(--gold-dim);text-decoration:none}
+
+/* ========== 主区 ========== */
+.main{overflow-y:auto;padding:0;position:relative}
+.page{display:none;padding:40px 56px 80px;max-width:1280px;margin:0 auto;animation:fadeIn .4s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.page-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;padding-bottom:24px;border-bottom:1px solid var(--border-soft)}
+.page-title-group{max-width:760px}
+.page-mark{font-family:"Fraunces",serif;font-style:italic;font-size:12px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px}
+.page-title{font-family:"Noto Serif SC",serif;font-weight:700;font-size:38px;line-height:1.2;color:var(--text-1);margin-bottom:12px}
+.page-subtitle{font-size:14px;color:var(--text-2);line-height:1.7}
+.page-actions{display:flex;gap:10px;flex-shrink:0}
+
+/* ========== 按钮 ========== */
+.btn{padding:10px 18px;border:1px solid var(--border);background:transparent;color:var(--text-1);border-radius:4px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn:hover{border-color:var(--gold);color:var(--gold-warm)}
+.btn-primary{background:var(--gold);color:var(--bg-0);border-color:var(--gold);font-weight:600}
+.btn-primary:hover{background:var(--gold-warm);color:var(--bg-0)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:var(--bg-0)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ========== 卡片 ========== */
+.card{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;padding:28px;transition:border-color .2s}
+.card:hover{border-color:var(--border)}
+.card-title{font-family:"Noto Serif SC",serif;font-size:18px;font-weight:600;margin-bottom:16px;color:var(--text-1)}
+.card-mark{font-family:"Fraunces",serif;font-style:italic;font-size:11px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+
+/* ========== 首页 Dashboard ========== */
+.hero{background:radial-gradient(ellipse at top right,rgba(212,175,55,.06) 0%,transparent 60%);border:1px solid var(--border-soft);border-radius:10px;padding:48px 44px;margin-bottom:32px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:0;right:0;width:1px;height:60px;background:var(--gold)}
+.hero-quote{font-family:"Fraunces",serif;font-style:italic;font-weight:400;font-size:26px;line-height:1.5;color:var(--gold-warm);max-width:720px;margin-bottom:24px}
+.hero-quote::before{content:"\201C";font-size:48px;color:var(--gold);position:absolute;left:24px;top:40px;font-family:"Fraunces",serif}
+.hero-cite{font-size:13px;color:var(--text-3);letter-spacing:.06em}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:40px}
+.stat{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;padding:24px;position:relative}
+.stat-label{font-size:11px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.stat-value{font-family:"Fraunces",serif;font-weight:600;font-size:42px;color:var(--text-1);line-height:1}
+.stat-value.gold{color:var(--gold)}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-sub{font-size:12px;color:var(--text-2);margin-top:8px}
+
+.quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:40px}
+.action-card{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;padding:32px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.action-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow-soft)}
+.action-card::after{content:"\2192";position:absolute;top:28px;right:28px;font-size:20px;color:var(--gold);opacity:0;transition:all .3s}
+.action-card:hover::after{opacity:1;right:24px}
+.action-num{font-family:"Fraunces",serif;font-style:italic;font-weight:400;font-size:13px;color:var(--gold);letter-spacing:.15em;margin-bottom:8px}
+.action-title{font-family:"Noto Serif SC",serif;font-size:20px;font-weight:700;margin-bottom:8px}
+.action-desc{font-size:13px;color:var(--text-2);line-height:1.7}
+
+.section-title{font-family:"Noto Serif SC",serif;font-size:22px;font-weight:600;margin:32px 0 20px;display:flex;align-items:center;gap:16px}
+.section-title::before{content:"";width:24px;height:1px;background:var(--gold)}
+
+/* ========== 评分器 ========== */
+.scorer-layout{display:grid;grid-template-columns:1fr 420px;gap:32px}
+.scorer-main{display:flex;flex-direction:column;gap:24px}
+.scorer-side{position:sticky;top:40px;align-self:start}
+
+.input-group{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;padding:24px;margin-bottom:20px}
+.input-group-title{font-family:"Noto Serif SC",serif;font-size:16px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.input-group-sub{font-size:12px;color:var(--text-3);margin-bottom:20px}
+
+.form-field{margin-bottom:18px}
+.form-field:last-child{margin-bottom:0}
+.form-label{display:block;font-size:13px;color:var(--text-2);margin-bottom:8px;font-weight:500}
+.form-input,.form-textarea{width:100%;background:var(--bg-2);border:1px solid var(--border);color:var(--text-1);padding:10px 14px;border-radius:4px;font-family:inherit;font-size:14px;transition:border-color .2s}
+.form-input:focus,.form-textarea:focus{outline:none;border-color:var(--gold)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-hint{font-size:11px;color:var(--text-3);margin-top:6px}
+
+.dimension{display:grid;grid-template-columns:1fr 200px 80px;gap:20px;align-items:center;padding:16px 0;border-bottom:1px dashed var(--border-soft)}
+.dimension:last-child{border-bottom:none}
+.dim-info{min-width:0}
+.dim-name{font-weight:500;font-size:14px;margin-bottom:4px;color:var(--text-1)}
+.dim-meta{font-size:11px;color:var(--text-3)}
+.dim-weight{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--gold);margin-left:8px}
+.dim-range{position:relative}
+.dim-slider{width:100%;-webkit-appearance:none;height:4px;background:var(--bg-3);border-radius:2px;outline:none;cursor:pointer}
+.dim-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--gold);border-radius:50%;cursor:pointer;transition:all .2s;box-shadow:0 0 0 4px rgba(212,175,55,.15)}
+.dim-slider::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.dim-slider::-moz-range-thumb{width:16px;height:16px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
+.dim-ticks{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--text-3);font-family:"JetBrains Mono",monospace}
+.dim-value{font-family:"Fraunces",serif;font-weight:600;font-size:22px;color:var(--text-1);text-align:right}
+
+.dealbreaker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px}
+.deal-chk{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--bg-2);border:1px solid var(--border-soft);border-radius:4px;cursor:pointer;transition:all .2s}
+.deal-chk:hover{border-color:var(--gold-dim)}
+.deal-chk input{margin-top:2px;cursor:pointer;accent-color:var(--gold)}
+.deal-chk-label{font-size:13px;color:var(--text-1);flex:1}
+.deal-chk-hint{font-size:10px;color:var(--text-3);display:block;margin-top:2px}
+
+/* 结果面板 */
+.result-panel{background:linear-gradient(180deg,var(--bg-1) 0%,var(--bg-2) 100%);border:1px solid var(--border);border-radius:10px;padding:32px;position:relative;overflow:hidden}
+.result-score-label{font-family:"Fraunces",serif;font-style:italic;font-size:12px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
+.result-score{font-family:"Fraunces",serif;font-weight:600;font-size:84px;line-height:1;color:var(--text-1);margin-bottom:4px;display:flex;align-items:baseline;gap:6px;transition:color .3s}
+.result-score-suffix{font-size:20px;color:var(--text-3);font-weight:400}
+.result-band{display:inline-block;padding:6px 16px;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:8px;font-family:"JetBrains Mono",monospace}
+.band-go{background:rgba(107,207,127,.15);color:var(--green);border:1px solid rgba(107,207,127,.3)}
+.band-deep{background:rgba(109,165,216,.15);color:var(--blue);border:1px solid rgba(109,165,216,.3)}
+.band-hold{background:rgba(244,163,64,.15);color:var(--orange);border:1px solid rgba(244,163,64,.3)}
+.band-pass{background:rgba(229,107,111,.15);color:var(--red);border:1px solid rgba(229,107,111,.3)}
+.result-desc{font-size:13px;color:var(--text-2);line-height:1.7;margin-top:20px;padding-top:20px;border-top:1px solid var(--border-soft)}
+.result-breakdown{margin-top:20px}
+.result-row{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;color:var(--text-2);font-family:"JetBrains Mono",monospace}
+.result-row-val{color:var(--text-1);font-weight:500}
+.result-actions{display:flex;gap:8px;margin-top:20px}
+.result-actions .btn{flex:1;justify-content:center}
+
+.penalty-active{background:rgba(229,107,111,.08);border:1px solid rgba(229,107,111,.3);border-radius:4px;padding:10px 14px;margin-top:12px;font-size:12px;color:var(--red)}
+.penalty-active strong{color:var(--red);display:block;margin-bottom:4px}
+
+/* ========== 表格 ========== */
+.tbl-wrap{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;overflow:hidden}
+.tbl-filter{padding:16px 20px;border-bottom:1px solid var(--border-soft);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.tbl-filter-search{flex:1;min-width:220px;background:var(--bg-2);border:1px solid var(--border);color:var(--text-1);padding:8px 14px;border-radius:4px;font-family:inherit;font-size:13px}
+.chip-group{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--text-2);border-radius:100px;cursor:pointer;font-size:12px;transition:all .2s}
+.chip:hover{border-color:var(--gold-dim);color:var(--text-1)}
+.chip.active{background:var(--gold);color:var(--bg-0);border-color:var(--gold);font-weight:500}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--bg-2);border-bottom:1px solid var(--border)}
+th{text-align:left;padding:14px 16px;font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+td{padding:14px 16px;border-bottom:1px solid var(--border-soft);color:var(--text-1);vertical-align:top}
+tr:hover td{background:rgba(212,175,55,.03)}
+.tbl-wrap tr:last-child td{border-bottom:none}
+
+.light-tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-family:"JetBrains Mono",monospace;font-weight:500;white-space:nowrap}
+.light-g{background:rgba(107,207,127,.15);color:var(--green);border:1px solid rgba(107,207,127,.3)}
+.light-y{background:rgba(244,163,64,.15);color:var(--orange);border:1px solid rgba(244,163,64,.3)}
+.light-r{background:rgba(229,107,111,.15);color:var(--red);border:1px solid rgba(229,107,111,.3)}
+
+/* ========== SOP 六层 ========== */
+.sop-layer{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;margin-bottom:16px;overflow:hidden;transition:all .3s}
+.sop-layer.expanded{border-color:var(--gold-dim)}
+.sop-head{display:grid;grid-template-columns:80px 1fr auto;gap:20px;align-items:center;padding:24px 28px;cursor:pointer;transition:background .2s}
+.sop-head:hover{background:var(--bg-2)}
+.sop-num{font-family:"Fraunces",serif;font-style:italic;font-weight:600;font-size:56px;color:var(--gold);line-height:1;opacity:.8}
+.sop-head-info h3{font-family:"Noto Serif SC",serif;font-size:20px;font-weight:700;margin-bottom:6px}
+.sop-head-info p{font-size:13px;color:var(--text-2);line-height:1.6}
+.sop-head-meta{text-align:right;font-size:11px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;font-family:"JetBrains Mono",monospace}
+.sop-body{display:none;padding:0 28px 28px;border-top:1px solid var(--border-soft);padding-top:24px;margin-top:0;background:var(--bg-0)}
+.sop-layer.expanded .sop-body{display:block;animation:fadeIn .3s}
+.sop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-bottom:24px}
+.sop-block h4{font-family:"Noto Serif SC",serif;font-size:14px;font-weight:600;margin-bottom:10px;color:var(--gold-warm);display:flex;align-items:center;gap:8px}
+.sop-block h4::before{content:"";width:4px;height:4px;background:var(--gold);border-radius:50%}
+.sop-block ul{list-style:none;padding:0}
+.sop-block li{padding:6px 0 6px 16px;font-size:13px;color:var(--text-2);position:relative;line-height:1.6}
+.sop-block li::before{content:"\2013";position:absolute;left:0;color:var(--gold-dim)}
+.sop-gate{background:rgba(212,175,55,.06);border-left:3px solid var(--gold);padding:16px 20px;font-size:13px;color:var(--text-1);border-radius:0 4px 4px 0;margin-top:16px}
+.sop-gate strong{color:var(--gold-warm);display:block;margin-bottom:4px}
+
+/* ========== Prompt 库 ========== */
+.prompt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.prompt-card{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;padding:24px;transition:all .2s;display:flex;flex-direction:column}
+.prompt-card:hover{border-color:var(--border)}
+.prompt-num{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.15em;margin-bottom:8px}
+.prompt-title{font-family:"Noto Serif SC",serif;font-size:17px;font-weight:700;margin-bottom:8px}
+.prompt-desc{font-size:12px;color:var(--text-2);margin-bottom:16px;line-height:1.6}
+.prompt-use{display:inline-block;font-size:10px;color:var(--gold-dim);background:rgba(212,175,55,.08);padding:3px 8px;border-radius:3px;margin-bottom:16px;font-family:"JetBrains Mono",monospace;letter-spacing:.05em}
+.prompt-preview{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--text-3);background:var(--bg-0);border:1px solid var(--border-soft);border-radius:4px;padding:14px;max-height:140px;overflow:hidden;margin-bottom:16px;line-height:1.7;position:relative}
+.prompt-preview::after{content:"";position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(180deg,transparent,var(--bg-0))}
+.prompt-actions{display:flex;gap:8px;margin-top:auto}
+.prompt-actions .btn{flex:1;justify-content:center}
+
+/* 一票否决 */
+.deal-list{display:flex;flex-direction:column;gap:8px}
+.deal-item{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg-1);border:1px solid var(--border-soft);border-radius:6px;transition:all .2s;cursor:pointer}
+.deal-item:hover{border-color:var(--border)}
+.deal-item.triggered{background:rgba(229,107,111,.08);border-color:rgba(229,107,111,.3)}
+.deal-item input{margin-top:4px;accent-color:var(--red);cursor:pointer}
+.deal-item-num{font-family:"Fraunces",serif;font-style:italic;font-size:14px;color:var(--gold);min-width:24px}
+.deal-item-text{font-size:13px;line-height:1.6;flex:1}
+.deal-item-cat{font-size:10px;color:var(--text-3);background:var(--bg-3);padding:2px 8px;border-radius:3px;font-family:"JetBrains Mono",monospace}
+.deal-summary{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;padding:28px;margin-bottom:24px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.deal-summary.triggered{background:rgba(229,107,111,.08);border-color:rgba(229,107,111,.4)}
+.deal-sum-main{font-family:"Noto Serif SC",serif;font-size:22px;font-weight:700}
+.deal-sum-sub{font-size:13px;color:var(--text-2);margin-top:6px}
+
+/* 历史 */
+.history-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.history-item{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:8px;padding:22px;cursor:pointer;transition:all .2s;position:relative}
+.history-item:hover{border-color:var(--gold-dim)}
+.history-date{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:.1em;margin-bottom:8px}
+.history-cat{font-family:"Noto Serif SC",serif;font-size:18px;font-weight:700;margin-bottom:12px;line-height:1.3}
+.history-score{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.history-score-num{font-family:"Fraunces",serif;font-weight:600;font-size:32px}
+.history-meta{font-size:11px;color:var(--text-3);display:flex;gap:14px;margin-top:8px}
+.history-del{position:absolute;top:14px;right:14px;opacity:0;transition:opacity .2s;color:var(--red);background:transparent;border:none;cursor:pointer;font-size:16px;padding:4px 8px}
+.history-item:hover .history-del{opacity:.7}
+.history-del:hover{opacity:1!important}
+
+.empty-state{text-align:center;padding:80px 20px;color:var(--text-3)}
+.empty-state-mark{font-family:"Fraunces",serif;font-style:italic;font-size:13px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px}
+.empty-state-title{font-family:"Noto Serif SC",serif;font-size:22px;color:var(--text-2);margin-bottom:8px}
+.empty-state-desc{font-size:13px;max-width:380px;margin:0 auto;line-height:1.7}
+
+/* 政策 */
+.policy-grid{display:flex;flex-direction:column;gap:12px}
+.policy-item{background:var(--bg-1);border:1px solid var(--border-soft);border-radius:6px;padding:20px 24px;display:grid;grid-template-columns:140px 1fr 120px auto;gap:24px;align-items:center;transition:border-color .2s}
+.policy-item:hover{border-color:var(--border)}
+.policy-cat{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase}
+.policy-name{font-weight:600;font-size:14px;margin-bottom:3px}
+.policy-desc{font-size:12px;color:var(--text-2);line-height:1.6}
+.policy-date{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--text-3);text-align:right}
+.policy-sev{font-size:10px;padding:3px 10px;border-radius:3px;font-family:"JetBrains Mono",monospace;font-weight:500;white-space:nowrap}
+.sev-high{background:rgba(229,107,111,.15);color:var(--red)}
+.sev-mid{background:rgba(244,163,64,.15);color:var(--orange)}
+.sev-low{background:rgba(109,165,216,.15);color:var(--blue)}
+
+/* 通用 */
+.md-section p{margin-bottom:12px;color:var(--text-2);font-size:14px;line-height:1.8}
+.md-section strong{color:var(--gold-warm)}
+
+.toast{position:fixed;bottom:32px;right:32px;background:var(--bg-2);border:1px solid var(--gold);color:var(--gold-warm);padding:14px 24px;border-radius:6px;font-size:13px;box-shadow:var(--shadow);z-index:1000;animation:slideIn .3s;font-weight:500}
+@keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:999;display:none;align-items:center;justify-content:center;padding:40px}
+.modal-bg.show{display:flex;animation:fadeIn .2s}
+.modal{background:var(--bg-1);border:1px solid var(--border);border-radius:10px;padding:40px;max-width:800px;max-height:85vh;width:100%;overflow-y:auto;position:relative}
+.modal-close{position:absolute;top:20px;right:20px;background:transparent;border:none;color:var(--text-3);font-size:22px;cursor:pointer;padding:6px 10px;line-height:1}
+.modal-close:hover{color:var(--text-1)}
+.modal-title{font-family:"Noto Serif SC",serif;font-size:24px;font-weight:700;margin-bottom:16px;padding-right:40px}
+.modal-body pre{background:var(--bg-0);border:1px solid var(--border-soft);border-radius:6px;padding:20px;overflow-x:auto;font-size:12px;line-height:1.7;color:var(--text-2);font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
+
+@media(max-width:1100px){
+  .scorer-layout{grid-template-columns:1fr}
+  .scorer-side{position:static}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .quick-actions{grid-template-columns:1fr}
+  .prompt-grid{grid-template-columns:1fr}
+}
+@media(max-width:880px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .page{padding:24px 20px}
+  .page-title{font-size:28px}
+  .sop-grid{grid-template-columns:1fr}
+  .dimension{grid-template-columns:1fr;gap:10px}
+  .dim-value{text-align:left}
+  .policy-item{grid-template-columns:1fr;gap:8px}
+}
+
+@media print{
+  .sidebar,.page-actions,.btn,.result-actions,.history-del{display:none!important}
+  body{background:white;color:black}
+  .page{padding:0}
+  .card,.stat,.sop-layer{background:white;border:1px solid #ccc;page-break-inside:avoid}
+  .page-title{color:black}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ 侧边栏 ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">Cross-Border Nana</div>
+      <div class="brand-title">亚马逊市场分析<br>工作台</div>
+      <div class="brand-sub">Market Intelligence Workbench</div>
+      <div class="brand-version">v1.0 · 2026-04-17</div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">核心工具</div>
+      <div class="nav-item active" data-nav="dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+        工作台首页
+      </div>
+      <div class="nav-item" data-nav="scorer">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        机会评分器
+      </div>
+      <div class="nav-item" data-nav="dealbreaker">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>
+        一票否决清单
+      </div>
+
+      <div class="nav-label">知识库</div>
+      <div class="nav-item" data-nav="threshold">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 4 4 5-5"/></svg>
+        指标阈值手册
+      </div>
+      <div class="nav-item" data-nav="sop">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+        六层 SOP 漏斗
+      </div>
+      <div class="nav-item" data-nav="prompt">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        AI Prompt 库
+      </div>
+      <div class="nav-item" data-nav="policy">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        2026 政策变量
+      </div>
+
+      <div class="nav-label">数据</div>
+      <div class="nav-item" data-nav="history">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+        评估历史
+      </div>
+    </nav>
+
+    <div class="nav-footer">
+      <div style="color:var(--text-2);margin-bottom:4px">All data stored locally.</div>
+      数据仅保存在本机浏览器。建议定期导出备份。
+    </div>
+  </aside>
+
+  <!-- ============ 主内容区 ============ -->
+  <main class="main">
+
+    <!-- ===== Page: Dashboard ===== -->
+    <section class="page active" data-page="dashboard">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Workbench / Dashboard</div>
+          <h1 class="page-title">你好，娜娜 PRO。</h1>
+          <p class="page-subtitle">一套为 7-8 位数年销卖家设计的选品决策系统。所有决策都以"资产拥有者"视角出发，任何不给阈值的指标都是噪音，任何不嵌入政策的分析都是文学。</p>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-quote">
+          "All money starts with product selection. Listing 不是关键词容器，是知识文档。流量已经从 A9 的 does this listing contain the words 进化到 COSMO 的 does this product solve the problem。"
+        </div>
+        <div class="hero-cite">— Kevin King × Brandon Young × Prebo Digital / 2024-2026</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">累计评估</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-sub">个品类</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Go 档决策</div>
+          <div class="stat-value green" id="stat-go">0</div>
+          <div class="stat-sub">立即立项</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Pass 档</div>
+          <div class="stat-value red" id="stat-pass">0</div>
+          <div class="stat-sub">省下的时间 = 现金</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">平均机会指数</div>
+          <div class="stat-value gold" id="stat-avg">—</div>
+          <div class="stat-sub">过往评估中位数</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">快速开始</h2>
+      <div class="quick-actions">
+        <div class="action-card" data-jump="scorer">
+          <div class="action-num">I.</div>
+          <div class="action-title">新建品类评估</div>
+          <div class="action-desc">9 维度打分 + 5 乘法惩罚 + 15 一票否决，3 分钟得出 Go / Deep Dive / Hold / Pass 决策。</div>
+        </div>
+        <div class="action-card" data-jump="threshold">
+          <div class="action-num">II.</div>
+          <div class="action-title">查询指标阈值</div>
+          <div class="action-desc">市场容量、垄断系数、新品动能、退货率、BSR 稳定性等 25+ 指标的绿/黄/红三档阈值速查。</div>
+        </div>
+        <div class="action-card" data-jump="sop">
+          <div class="action-num">III.</div>
+          <div class="action-title">复习六层漏斗</div>
+          <div class="action-desc">从战略过滤器到立项资产化，每一层的工具、步骤、否决条件、产出物全览。</div>
+        </div>
+        <div class="action-card" data-jump="prompt">
+          <div class="action-num">IV.</div>
+          <div class="action-title">调取 AI Prompt</div>
+          <div class="action-desc">差评聚类、Listing 诊断、关键词聚类、Rufus 优化、PRD 生成等 8 个即用 Prompt。</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">最近评估</h2>
+      <div id="recent-list"></div>
+    </section>
+
+    <!-- ===== Page: Scorer ===== -->
+    <section class="page" data-page="scorer">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Tool / Opportunity Scorer</div>
+          <h1 class="page-title">机会评分器</h1>
+          <p class="page-subtitle">机会指数 = Σ(子项得分 × 权重) × 乘法惩罚因子。评分 ≥80 Go，65-79 Deep Dive，50-64 Hold，<50 Pass。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn" onclick="resetScorer()">重置</button>
+        </div>
+      </div>
+
+      <div class="scorer-layout">
+        <div class="scorer-main">
+
+          <div class="input-group">
+            <div class="input-group-title">基础信息</div>
+            <div class="input-group-sub">记录此次评估的品类身份与核心备注</div>
+            <div class="form-field">
+              <label class="form-label">品类名称 / 主关键词 *</label>
+              <input type="text" class="form-input" id="cat-name" placeholder="例如：Pet Water Fountain">
+            </div>
+            <div class="form-field">
+              <label class="form-label">信号来源</label>
+              <select class="form-input" id="cat-source">
+                <option>Sorftime Top100 扫榜</option>
+                <option>TikTok 溢出监控</option>
+                <option>Reddit 痛点发现</option>
+                <option>Vine 样品数据</option>
+                <option>学员 / 客户共创</option>
+                <option>第三方情报</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">备注</label>
+              <textarea class="form-textarea" id="cat-note" placeholder="发现动机、假设、已知风险..."></textarea>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div class="input-group-title">九维度评分</div>
+            <div class="input-group-sub">拖动滑块或输入数字打分。每项参考右侧阈值档位。</div>
+            <div id="dim-list"></div>
+          </div>
+
+          <div class="input-group">
+            <div class="input-group-title">乘法惩罚因子</div>
+            <div class="input-group-sub">触发即大幅降权或归零，优先级高于分数</div>
+            <div class="dealbreaker-grid" id="deal-list"></div>
+          </div>
+
+        </div>
+
+        <aside class="scorer-side">
+          <div class="result-panel">
+            <div class="result-score-label">机会指数</div>
+            <div class="result-score" id="score-val">0<span class="result-score-suffix">/100</span></div>
+            <div class="result-band band-pass" id="score-band">Pass</div>
+            <div class="result-desc" id="score-desc">开始打分，实时查看决策档位。</div>
+            <div id="penalty-area"></div>
+            <div class="result-breakdown" id="score-breakdown"></div>
+            <div class="result-actions">
+              <button class="btn btn-primary" onclick="saveEvaluation()">保存</button>
+              <button class="btn" onclick="exportCurrentMd()">导 MD</button>
+              <button class="btn" onclick="exportCurrentJson()">导 JSON</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== Page: Threshold ===== -->
+    <section class="page" data-page="threshold">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Reference / Threshold Handbook</div>
+          <h1 class="page-title">指标阈值手册</h1>
+          <p class="page-subtitle">建议打印贴墙。凡不给阈值的指标都是噪音。</p>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-filter">
+          <input type="text" class="tbl-filter-search" id="th-search" placeholder="搜索指标（如：CR5、BSR、退货率...）">
+          <div class="chip-group" id="th-chips"></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table id="th-table">
+            <thead>
+              <tr>
+                <th>分类</th><th>指标</th><th>绿灯</th><th>黄灯</th><th>红灯</th><th>数据源</th><th>备注</th>
+              </tr>
+            </thead>
+            <tbody id="th-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Page: SOP ===== -->
+    <section class="page" data-page="sop">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Methodology / 6-Layer Funnel</div>
+          <h1 class="page-title">六层 SOP 漏斗</h1>
+          <p class="page-subtitle">从战略过滤器到资产化立项。每一层都可以把 80% 候选砍掉，宁可错杀，不可错判。</p>
+        </div>
+      </div>
+      <div id="sop-list"></div>
+    </section>
+
+    <!-- ===== Page: Deal Breaker ===== -->
+    <section class="page" data-page="dealbreaker">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Checklist / Deal Breakers</div>
+          <h1 class="page-title">一票否决清单</h1>
+          <p class="page-subtitle">15 条选品"不碰"清单。任一触发 = 停下整套流程，重新找品。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn" onclick="resetDealbreaker()">清零</button>
+        </div>
+      </div>
+      <div class="deal-summary" id="deal-summary">
+        <div>
+          <div class="deal-sum-main" id="deal-sum-title">尚未触发任何否决线</div>
+          <div class="deal-sum-sub" id="deal-sum-sub">勾选所有已确认的风险条款，系统会实时给出是否继续的建议。</div>
+        </div>
+        <div class="result-band band-go" id="deal-sum-band">继续</div>
+      </div>
+      <div class="deal-list" id="deal-items"></div>
+    </section>
+
+    <!-- ===== Page: Prompt ===== -->
+    <section class="page" data-page="prompt">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Library / AI Prompts</div>
+          <h1 class="page-title">AI Prompt 库</h1>
+          <p class="page-subtitle">8 个生产级 Prompt，覆盖差评聚类、Listing 诊断、关键词聚类、Rufus 优化、PRD、询盘、POA。点击"复制"直接粘贴进 Claude / GPT。</p>
+        </div>
+      </div>
+      <div class="prompt-grid" id="prompt-grid"></div>
+    </section>
+
+    <!-- ===== Page: Policy ===== -->
+    <section class="page" data-page="policy">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Regulatory / 2026 Variables</div>
+          <h1 class="page-title">2026 政策变量</h1>
+          <p class="page-subtitle">关税、合规、平台新政——选品阶段必须嵌入的"乘法"项。每季度复核。</p>
+        </div>
+      </div>
+      <h2 class="section-title">一、关税与贸易政策</h2>
+      <div class="policy-grid" id="policy-tariff"></div>
+      <h2 class="section-title">二、产品合规</h2>
+      <div class="policy-grid" id="policy-compliance"></div>
+      <h2 class="section-title">三、Amazon 平台新政</h2>
+      <div class="policy-grid" id="policy-platform"></div>
+    </section>
+
+    <!-- ===== Page: History ===== -->
+    <section class="page" data-page="history">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="page-mark">Archive / Evaluation Log</div>
+          <h1 class="page-title">评估历史</h1>
+          <p class="page-subtitle">所有过往评估按时间倒序。点击查看详情，或一键导出全部备份。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn" onclick="exportAllHistory()">导出全部 (JSON)</button>
+          <button class="btn" onclick="document.getElementById('import-file').click()">导入备份</button>
+          <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importHistory(event)">
+          <button class="btn btn-danger" onclick="clearHistory()">清空</button>
+        </div>
+      </div>
+      <div id="history-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h3 class="modal-title" id="modal-title"></h3>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   DATA LAYER
+============================================================================ */
+
+// 9 个评分维度
+const DIMENSIONS = [
+  {id:'size',     name:'市场容量',      weight:15, desc:'Top 100 月销合计 + ABA 搜索量', anchors:['<10K 件','30K-80K','80K-200K','>200K 件']},
+  {id:'growth',   name:'需求增速',      weight:10, desc:'90 天同比搜索/销量变化',          anchors:['负增长','5-15%','15-30%','30-80%']},
+  {id:'gap',      name:'竞争空白',      weight:15, desc:'CR5 + Top 20 Review 中位数',       anchors:['CR5>65%','CR5 35-50%','CR5 20-35%','CR5<20%']},
+  {id:'pain',     name:'痛点强度',      weight:15, desc:'核心痛点购买决策级强度 + 可解性', anchors:['无痛点','中','强','¥5 内解决']},
+  {id:'profit',   name:'利润空间',      weight:15, desc:'关税后预估净利率（到岸成本模型）', anchors:['<10%','15-22%','22-30%','>30%']},
+  {id:'new',      name:'新品动能',      weight:10, desc:'上架<365 天 Listing 占 Top 100 比', anchors:['<10%','20-30%','30-45%','45-55%']},
+  {id:'season',   name:'季节性稳健',    weight:5,  desc:'Max/Min 12 月 Google Trends 系数',  anchors:['>5 倍单峰','2-3 倍','1.5-2 倍','<1.5 倍']},
+  {id:'ad',       name:'广告成本',      weight:5,  desc:'主词 CPC 水平',                    anchors:['>$4','$2-$3','$1-$2','<$1']},
+  {id:'offsite',  name:'站外热度',      weight:10, desc:'TikTok + Trends + Reddit 综合',    anchors:['无信号','中','强','强+溢出']}
+];
+
+// 乘法惩罚因子
+const DEALBREAKERS = [
+  {id:'compliance', label:'合规未通过',     hint:'CPC/FCC/Prop 65/GPSR 等一项不达标', factor:0},
+  {id:'patent',     label:'专利商标有雷',   hint:'USPTO/Design Patent 无法绕开',      factor:0},
+  {id:'profit',     label:'关税后毛利 <15%', hint:'按 2026 新到岸成本模型计算',        factor:0},
+  {id:'highrisk',   label:'高危运营品类',   hint:'电子/保健品/美妆/TRO 高发',         factor:0.5},
+  {id:'amzself',    label:'亚马逊自营 >30%', hint:'平台自己下场的品类',                factor:0.5}
+];
+
+// 一票否决清单 15 条
+const DEAL_CHECKLIST = [
+  {cat:'利润',   text:'售价 <$10 且非 Haul 规模化打法'},
+  {cat:'利润',   text:'关税后毛利 <15%'},
+  {cat:'合规',   text:'含无线模块但无 FCC 预算'},
+  {cat:'合规',   text:'含电池（UN38.3）但无头程海派资源'},
+  {cat:'合规',   text:'儿童产品无 CPC 预算'},
+  {cat:'合规',   text:'含 Prop 65 警告物质但无合规标签能力'},
+  {cat:'竞争',   text:'品类 CR5 > 65% 且 Top 3 是 Anker/SharkNinja 级品牌'},
+  {cat:'竞争',   text:'品类 Amazon 自营占比 > 30%'},
+  {cat:'平台',   text:'近 12 月 SAD Scheme 案件 ≥ 10 起'},
+  {cat:'专利',   text:'核心功能被活跃 Utility Patent 覆盖且无绕开路径'},
+  {cat:'专利',   text:'设计与活跃 Design Patent 相似度 ≥ 80%'},
+  {cat:'季节',   text:'季节性系数 >5 且无反季节 SKU 对冲'},
+  {cat:'运营',   text:'退货率 > 品类阈值的 1.5 倍'},
+  {cat:'现金',   text:'首批库存资金 > 公司可用现金的 30%（DD+7 后现金压力）'},
+  {cat:'供应链', text:'依赖单一工厂（替代供应商 <2 家）'}
+];
+
+// 阈值表
+const THRESHOLDS = [
+  {cat:'市场容量', ind:'主词月搜索量 (ABA SFR)',        g:'SFR 5K-100K',  y:'100K-300K 或 1K-5K',     r:'>300K 或 <1K',     src:'Brand Analytics',           note:'太小无量，太大红海'},
+  {cat:'市场容量', ind:'Top 100 月销合计',              g:'30K-300K 件',  y:'300K-800K 件',            r:'<10K 或 >1M 件',   src:'Sorftime',                  note:'Sorftime 原始阈值'},
+  {cat:'市场容量', ind:'购买/搜索比',                   g:'>100',         y:'50-100',                  r:'<50',              src:'Sellersprite',              note:'转化型需求'},
+  {cat:'市场容量', ind:'90 天搜索量增速',               g:'+15% 到 +50%', y:'+5% 到 +15%',            r:'负 或 >+100%',      src:'JungleScout / Trends',     note:'>100% 警惕伪风口'},
+  {cat:'垄断系数', ind:'Top 3 销量占比 CR3',            g:'<30%',         y:'30-50%',                  r:'>50%',             src:'Sorftime',                  note:'头部寡头警戒'},
+  {cat:'垄断系数', ind:'Top 5 销量占比 CR5',            g:'<45%',         y:'45-65%',                  r:'>65%',             src:'Sorftime',                  note:''},
+  {cat:'垄断系数', ind:'Top 10 品牌垄断 CR10',          g:'<60%',         y:'60-80%',                  r:'>80%',             src:'Market Tracker 360',        note:''},
+  {cat:'垄断系数', ind:'卖家垄断 CR5',                  g:'<40%',         y:'40-60%',                  r:'>60%',             src:'SmartScout',                note:''},
+  {cat:'垄断系数', ind:'HHI 赫芬达尔指数',              g:'<1500',        y:'1500-2500',               r:'>2500',            src:'自算 ΣSᵢ²',                note:'美国反垄断经典阈值'},
+  {cat:'垄断系数', ind:'Amazon 自营 FBA 占比',          g:'<15%',         y:'15-30%',                  r:'>30%',             src:'Sorftime',                  note:'超 30% 亚马逊自己下场'},
+  {cat:'新品动能', ind:'上架<365 天 Listing 占比',      g:'20-40%',       y:'10-20% 或 40-60%',       r:'<10% 或 >60%',     src:'Sorftime 新品占比',         note:'<10% 老化，>60% 卷死'},
+  {cat:'新品动能', ind:'新品进 Top 50 平均天数',        g:'90-180 天',    y:'180-365 天',              r:'>365 天',          src:'Keepa + 卖家精灵',          note:''},
+  {cat:'新品动能', ind:'最近 6 个月新品存活率',         g:'>30%',         y:'15-30%',                  r:'<15%',             src:'手动统计',                  note:'存活率低 = 高阵亡'},
+  {cat:'评分分布', ind:'Top 20 评分中位数',             g:'3.8-4.3',      y:'4.3-4.5',                 r:'>4.5 或 <3.8',     src:'Helium 10 X-Ray',           note:'>4.5 无缝可切；<3.8 先查可做性'},
+  {cat:'评分分布', ind:'Top 20 中 4.0 以下占比',        g:'20-40%',       y:'10-20%',                  r:'<10%',             src:'Helium 10',                 note:'高 = 痛点多 = 机会'},
+  {cat:'评分分布', ind:'Top 10 平均 Review 数',         g:'200-1500',     y:'1500-5000',               r:'>5000',            src:'JungleScout',               note:'>5000 壁垒已成'},
+  {cat:'退货率',   ind:'标品退货率',                    g:'<6%',          y:'6-10%',                   r:'>10%',             src:'Customer Returns',          note:'超阈值即触发退货处理费'},
+  {cat:'退货率',   ind:'服饰/鞋 退货率',                g:'N/A 0 阈值',   y:'N/A',                     r:'任何',             src:'Amazon 规定',               note:'服饰鞋每单退货都收费'},
+  {cat:'退货率',   ind:'3C 电子 退货率',                g:'<8%',          y:'8-15%',                   r:'>15%',             src:'',                          note:''},
+  {cat:'退货率',   ind:'家居家具 退货率',               g:'<5%',          y:'5-10%',                   r:'>10%',             src:'',                          note:''},
+  {cat:'转化率',   ind:'CVR（品类基线）',               g:'标品 12-20%',  y:'低于基线 30%',            r:'低于基线 50%',     src:'后台 + ABA',                note:'3C 8-15% / 服装 8-12%'},
+  {cat:'价格带',   ind:'甜蜜价格带',                    g:'$19-$59',      y:'$10-$19 或 $59-$120',    r:'<$10 或 >$200',    src:'Keepa 分布',                note:'<$10 踩 Haul/Temu 区'},
+  {cat:'价格带',   ind:'价格方差 最高/最低',            g:'<3 倍',        y:'3-5 倍',                  r:'>5 倍',            src:'Keepa',                     note:'>5 倍必打价格战'},
+  {cat:'市场老化', ind:'Listing 平均上架天数 Top 100',  g:'365-1000 天',  y:'1000-1800 天',            r:'>1800 天',         src:'卖家精灵 / Sorftime',       note:'>1800 天老化严重'},
+  {cat:'BSR',     ind:'BSR 30 天波动系数 CV',          g:'<0.3',         y:'0.3-0.6',                 r:'>0.6',             src:'Keepa 导出',                note:'高波动 = 刷单伪稳定'},
+  {cat:'季节性',   ind:'季节性系数 Max/Min',           g:'1-2 倍',       y:'2-4 倍',                  r:'>4 倍',            src:'Google Trends',             note:'>4 倍单峰，现金流风险'},
+  {cat:'广告',     ind:'主词 CPC',                      g:'<$1.5',        y:'$1.5-$3.5',               r:'>$3.5',            src:'Cerebro',                   note:''},
+  {cat:'广告',     ind:'Page 1 SP 广告点位',            g:'4-8',          y:'8-14',                    r:'14+',              src:'Helium 10 X-Ray',           note:''},
+  {cat:'广告',     ind:'达到 TACoS 15% 预计时间',       g:'<6 月',        y:'6-12 月',                 r:'>12 月',           src:'自测',                      note:''},
+  {cat:'ABA',     ind:'Top 3 合计 Click Share',        g:'<50%',         y:'50-70%',                  r:'>70%',             src:'ABA SQP',                   note:'Top 3 吃满 70% = 寡头'},
+  {cat:'ABA',     ind:'Top 3 合计 Conversion Share',   g:'<60%',         y:'60-80%',                  r:'>80%',             src:'ABA',                       note:'比 Click Share 更硬'}
+];
+
+// 六层 SOP
+const SOP_LAYERS = [
+  {num:'0',title:'战略过滤器',desc:'在打开任何工具之前先过滤',tools:['年度品类黑名单','资本效率阈值','资产型 vs 流量型定位'],outputs:['不符合战略的品类不必深查'],dealbreaker:'品类落入年度黑名单'},
+  {num:'1',title:'站内初筛 (30 分钟)',desc:'Sorftime/卖家精灵 Top 100 面板 + Helium 10 Black Box',tools:['Sorftime Top100 9 指标扫描','Helium 10 Black Box 筛选','月销额>$10k + Review<100 + 90 天增速>20%'],outputs:['通过 3 绿灯筛选的品类清单'],dealbreaker:'3 条绿灯中不足 2 条'},
+  {num:'2',title:'站外验证 (2 小时)',desc:'Google Trends 四象限 + TikTok/Kalodata + Reddit + DTC',tools:['Google Trends 5 年 Topic','TikTok Creative Center + Kalodata','Reddit F5Bot/Syften 关键词','Similarweb 竞品流量结构'],outputs:['站外信号综合评分','溢出窗口判断'],dealbreaker:'Trends 处于象限 III 或 IV 且无反例'},
+  {num:'3',title:'竞品深度透视 (1 天)',desc:'Keepa + Cerebro + Data Dive + Listing 五要素打分',tools:['Keepa 全曲线 12 个月复盘','Cerebro Reverse ASIN Top 10','Data Dive KW Gap 差距分析','Listing 五要素评分卡'],outputs:['MKL 主关键词表 300-800 词','竞争空白关键词池','竞品 Listing 评分 <70 数'],dealbreaker:'竞品 Top 3 均 >85 分 = 工程化无空间'},
+  {num:'4',title:'痛点挖掘 & 差异化设计 (1 天)',desc:'AI Review Mining + QA + Reddit + 访谈',tools:['Helium 10 Review Insights + 卖家精灵','Claude 差评聚类 Prompt','Reddit 定向访谈 ≥10 人','Amazon Vine 样品数据回流'],outputs:['3-5 个核心痛点 + 强度分','V2 Listing 话术','PRD 改进 Spec'],dealbreaker:'痛点不可解或改进成本>¥20/件'},
+  {num:'5',title:'可行性 & 利润测算 (半天)',desc:'到岸成本模型 + FBA 2026 新费率 + 现金流压力测试',tools:['EXW + 头程 + 关税 + Section 122 + MPF','FBA 2026 费率 + 油附加 3.5%','TACoS 15% + 退货 5% + 认证摊销','DD+7 现金流模型'],outputs:['净利率 & 保本售价','12 月回本模型','首批库存预算'],dealbreaker:'净利 <15% 或回本 >12 月'},
+  {num:'6',title:'立项 & 资产化',desc:'Notion 立项卡 + PRD + 专利/商标 + Listing 工程化',tools:['Notion 立项卡 + PRD 模板','USPTO IP Accelerator 商标','Design Patent 申请 $2-3k','Brand Registry 3.0 + Transparency','Listing 工程化 SOP'],outputs:['可执行项目卡','资产登记表','里程碑+负责人'],dealbreaker:null}
+];
+
+// 8 个 Prompt
+const PROMPTS = [
+  {n:'01',title:'差评聚类 + 痛点强度评分',use:'Review Mining',desc:'把 500 条竞品差评聚类出 5-8 个互斥痛点，每个给四维度打分并输出 JSON。',
+   content:`你是跨境电商资深产品经理，以下是某亚马逊产品 Top 10 竞品的 1-3 星差评（500 条，已去重）：
+
+[粘贴 CSV 文本]
+
+任务：
+1. 聚类出 5-8 个互斥的痛点类别，每类给中文短名（≤8 字）
+2. 每个痛点给四个评分（1-10 整数）：
+   a. 出现频次分（频次越高分越高）
+   b. 购买决策级强度（是否导致退货/放弃/强烈吐槽）
+   c. 改进成本（1=<¥2，10=需重新开模）
+   d. 差异化价值（解决后能否成为独特卖点）
+3. 综合强度分 = (a*0.3 + b*0.5 + (11-c)*0.1 + d*0.1)
+4. 输出 JSON 结构：
+{
+  "pain_points": [
+    {
+      "name": "盖子漏水",
+      "frequency_count": 87,
+      "frequency_score": 9,
+      "decision_severity": 10,
+      "improvement_cost": 2,
+      "differentiation_value": 8,
+      "composite_score": 9.4,
+      "sample_quotes": ["leaks everywhere in my bag", ...],
+      "target_persona": "通勤族、家长",
+      "improvement_spec": "硅胶密封圈+防漏阀，成本¥2/件",
+      "v2_listing_copy": "Upgraded leak-proof silicone seal based on 87 verified feedback"
+    }
+  ]
+}
+5. 按 composite_score 从高到低排序，只保留前 5 个。
+6. 不允许编造，所有 quote 必须来自输入文本。`},
+
+  {n:'02',title:'竞品 Listing 五要素诊断',use:'Listing Audit',desc:'我方 vs 竞品 Top 5 的量化打分，输出 10 条差距与优先级 Action。',
+   content:`你是亚马逊 Listing 工程化专家。以下是我的产品和 Top 5 竞品的 Listing 完整信息：
+
+我的产品：[粘贴标题、五点、A+ 截图描述、主图 URL、视频有无、QA 数、Review 数、评分]
+竞品 1-5：[同上格式]
+
+请按以下评分卡给出每个 Listing 五要素的量化得分和改进建议：
+
+主图 (25 分)：白底 5 + 占图 85% 5 + 痛点视觉化 5 + 差异化标识 5 + 高清 5
+五点 (20 分)：前 3 字大写 3 + 首字核心卖点 3 + <250 字符 2 + ≥3 场景词 6 + Rufus 意图节点 6
+A+ (20 分)：≥5 模块 5 + 对比表 5 + 品牌故事 3 + ALT 文本 4 + Premium 3
+视频 (15 分)：主视频 15-30 秒 5 + 场景化 5 + 差评转化 5
+QA+Review (20 分)：QA ≥20 5 + QA 回差评 5 + 星级 ≥4.3 5 + 带图 Review ≥30% 5
+
+输出：
+1. 每个 Listing 的总分 + 五要素分项
+2. 我的产品 vs 竞品 Top 3 的 Gap 表（指出 10 条具体差距）
+3. 优先级排序的改进 Action List（前 5 条，每条带预估执行工时和预期 CVR 提升）`},
+
+  {n:'03',title:'关键词聚类与父子层级',use:'Keyword Research',desc:'Cerebro 导出 800 词 → 根词聚类 + 子词 + 场景描述 + 出单潜力。适配 COSMO/Rufus。',
+   content:`以下是我从 Cerebro 导出的 ASIN 反查关键词（共 800 个）：
+[CSV: 关键词, 月搜索量, 相关度]
+
+任务：
+1. 提取根词（Root Phrases）：词干聚类后出现 ≥5 次的词根
+2. 对每个根词，列出所有长尾变体子词
+3. 为每个根词写一段 40 字的"意图场景描述"（回答：谁在 什么场景下 因为什么原因 搜索这个词）
+4. 标记哪些词是"出单词候选"（搜索量 500-10000 + 购买意图明显）
+5. 输出 Notion 表格结构：
+| 根词 | 搜索量 | 场景描述 | 意图节点 | 子词(逗号分隔) | 出单潜力 |`},
+
+  {n:'04',title:'Rufus 优化版 A+ 页面生成',use:'Listing Generation',desc:'基于 Rufus + COSMO 逻辑生成 6 模块 A+，ALT 文本含"人+动作+场景+特性"。',
+   content:`我的产品：[名称/USP/核心参数]
+目标人群：[画像]
+三大痛点（来自 Review Mining）：[痛点1-3]
+竞品 Top 3 的 A+ 模块结构：[描述]
+
+请基于 Rufus + COSMO 优化逻辑生成 A+ 内容，要求：
+1. 6 个模块：Hero、痛点-方案对比、Before/After、规格对比表、场景化使用、FAQ 型 Brand Story
+2. 每模块含 ALT 文本 2-3 条，ALT 必须包含"人 + 动作 + 场景 + 产品特性"四要素
+3. 每模块文案 ≤80 字，语义密度高，避免营销套话
+4. 嵌入至少 10 个 Rufus 意图节点词（who/when/why/how 维度）
+5. 最后一个 FAQ 模块直接回应 5 个高频 Review 差评问题
+
+输出 Markdown + 每模块的视觉 Brief（图片要拍什么）。`},
+
+  {n:'05',title:'一页纸市场机会报告',use:'Executive Summary',desc:'站内+站外+合规+利润+机会指数 → 800 字以内 BLUF 结构决策报告。',
+   content:`基于以下数据，输出一份"市场机会一页纸报告"（中文，不超过 800 字）：
+
+【站内数据】[Sorftime/卖家精灵/Helium10 数据]
+【站外数据】[Trends 四象限、TikTok GMV、Reddit 信号]
+【合规】[通过/风险点]
+【利润测算】[毛利/净利/回本月]
+【机会指数】[评分 + 各子项得分]
+
+报告结构严格遵循：
+1. Bottom Line Up Front（一句话结论 + Go/Deep Dive/Hold/Pass）
+2. 三个关键数字（哪三个数字最能说明机会）
+3. 三个风险与对策
+4. 下一步 Action（具体到谁、什么时候、做什么）
+
+禁止：SWOT/PEST 等套路框架、空话、形容词堆砌。`},
+
+  {n:'06',title:'产品开发需求文档 PRD',use:'Product Spec',desc:'5 痛点 + USP → 10 项可量化 PRD，直接交付 1688 供应商。',
+   content:`基于已确认的 5 个核心痛点和差异化 USP，生成 PRD 文档，输出给 1688 供应商：
+
+1. 产品定位（1 句）
+2. 目标售价 & 出厂价目标（带毛利公式）
+3. 核心功能 Spec（必须项 + 可选项，带技术参数）
+4. 差异化设计（vs 竞品 Top 3，逐条对比）
+5. 包装规格 & 重量尺寸（含 FBA 最优仓配尺寸推荐）
+6. 认证要求（CPC/FCC/Prop 65 等）
+7. 打样计划（时间、数量、测试项）
+8. 首批采购计划（数量、交期、付款条件）
+9. 供应商筛选标准（ISO/BSCI/工厂规模阈值）
+10. 风险与对策（3 条）
+
+所有项必须量化，禁止"尽可能""高品质"等模糊词。`},
+
+  {n:'07',title:'供应商询盘邮件 (中英双语)',use:'Sourcing',desc:'显示买方是"年采购 $XXX 的品牌商"，提高供应商响应优先级。',
+   content:`基于 PRD，生成专业询盘邮件：
+- 中文（发 1688/阿里国际站）
+- 英文（发 Alibaba 海外供应商）
+
+结构：公司背景 1 段 + 需求 5 条（规格、MOQ、认证、交期、付款）+ 必答问题清单 8 条 + 下一步
+
+要求：语气专业，显示买方是"年采购 $XXX 的品牌商"而非"测试采购"，提高供应商响应优先级。`},
+
+  {n:'08',title:'TRO / 知识产权申诉 POA',use:'Risk Mgmt',desc:'Amazon Plan of Action：认错 + Root Cause + Action + Preventive + Metrics，≤800 字。',
+   content:`场景：我的 ASIN [XXX] 被 [原告] 以 [专利号/商标号] 投诉，Amazon 已下架并冻结 [$XX] 资金。
+
+生成一份 Amazon Plan of Action (POA)，要求：
+1. 承认问题（1 段）
+2. Root Cause（2 条，具体到流程环节）
+3. Immediate Action（3 条，带时间戳和证据链接占位符）
+4. Long-term Preventive Plan（5 条，含员工培训、SOP 更新、监控工具）
+5. Metrics（如何衡量整改效果，带 30/60/90 天复盘点）
+
+语气：专业认错但不卑躬，数据驱动，证据充分。长度 ≤800 字。
+附：若被投诉方是中国 NPE 专利流氓，加一段说明已启动 APEX 评估并附 USPTO 检索结果。`}
+];
+
+// 政策变量
+const POLICIES = {
+  tariff:[
+    {cat:'IEEPA',  name:'对华"芬太尼税" +20%',    desc:'叠加在 Section 301 之上',                         date:'2025/3/4 生效', sev:'high'},
+    {cat:'301',    name:'Section 301 清单 1-4',    desc:'税率 7.5%-100%，按 HTS 具体查询',                  date:'长期有效',       sev:'high'},
+    {cat:'对等',   name:'Reciprocal Tariff',       desc:'2025/4/9 对华 125%，谈判降至 54% + $100/件 flat',    date:'动态调整',       sev:'high'},
+    {cat:'司法',   name:'V.O.S. v. Trump',         desc:'IEEPA 被驳回，15% Section 122 附加费接棒',          date:'2026/2/24',     sev:'high'},
+    {cat:'De Minimis',name:'$800 免税取消',        desc:'直发 DTC 模式失效，包裹按原产国税率 + flat $80/160/200',date:'2025/8/29 全球生效',sev:'high'},
+    {cat:'T86',    name:'Entry Type 86 对华关闭',  desc:'全球小包走 Formal Entry，必须 HBL + 报关行',         date:'已执行',         sev:'mid'},
+    {cat:'232',    name:'Section 232 钢铝',        desc:'金属厨具、汽配 +25-50% 成本',                       date:'持续',           sev:'mid'},
+    {cat:'转口',   name:'USMCA Substantial Transformation',desc:'单纯换箱/贴标不算；核心工序必须迁出',  date:'CBP 严查',       sev:'high'}
+  ],
+  compliance:[
+    {cat:'INFORM', name:'INFORM Consumers Act',    desc:'不能提供 verified info 则不能上架',                  date:'2023/6',        sev:'mid'},
+    {cat:'CPSIA',  name:'儿童产品 CPC + ASTM F963',desc:'12 岁以下产品无 CPC = 一票否决',                    date:'长期',           sev:'high'},
+    {cat:'Prop 65',name:'加州 Prop 65 警告物质',   desc:'含铅/镉/邻苯/BPA 无警告标 = 每日 $2,500 罚款',        date:'2024/11 更新',   sev:'high'},
+    {cat:'AB 1200',name:'食品接触材料 PFAS',        desc:'PFAS 超标 = 一票否决（厨具/食品容器）',               date:'2023-25 分段',   sev:'high'},
+    {cat:'AB 2762',name:'化妆品禁用成分',          desc:'个护产品禁用成分一票否决',                           date:'2025/1',        sev:'mid'},
+    {cat:'GPSR',   name:'欧盟 GPSR',               desc:'无欧盟 RP = 不能上架 Amazon EU',                    date:'2024/12/13',    sev:'high'},
+    {cat:'PPWR',   name:'欧盟包装废物规范',        desc:'2026 需重新设计包装',                               date:'2025-26 分段',   sev:'mid'},
+    {cat:'FDA',    name:'FDA (食接/OTC/化妆品)',   desc:'无 FDA 认证 = 一票否决（涂层厨具/食品容器）',         date:'长期',           sev:'high'},
+    {cat:'FCC',    name:'FCC ID (无线模块)',       desc:'含无线无 FCC ID = 一票否决',                         date:'长期',           sev:'high'},
+    {cat:'UN38.3', name:'电池运输合规',            desc:'含电池无合规海派 = 直接 reject',                     date:'长期',           sev:'high'}
+  ],
+  platform:[
+    {cat:'Haul',    name:'Amazon Haul 低价商店',   desc:'低价 FBA -$0.86/件；<$10 让给 Haul',                 date:'2024/11',       sev:'mid'},
+    {cat:'Rufus',   name:'Rufus AI 助手',          desc:'Listing 必须"谁何时为何如何"场景写，图片 ALT + 后端 Attribute > 标题',date:'2024/2 起',sev:'high'},
+    {cat:'COSMO',   name:'COSMO 语义算法',          desc:'选品阶段评估"意图节点密度"',                          date:'2024 年中',      sev:'high'},
+    {cat:'AWD',     name:'Amazon Warehousing',     desc:'2026 West 仓 +19-22%；AWD → FBA 配置费 $0',           date:'2024 扩张',      sev:'low'},
+    {cat:'入仓费',  name:'入库配置服务费',          desc:'单目的地 $0.21-2.50/lb；5+ 目的地可归零',             date:'2024/3/1',      sev:'mid'},
+    {cat:'低量费',  name:'Low-Inventory Fee',      desc:'90/30 天供应 <28 天每件 $0.32-0.97；FNSKU 级别',      date:'2026/1/15',     sev:'high'},
+    {cat:'退货费',  name:'新品退货处理费',          desc:'服饰鞋 0 阈值，每单必收；其他品类超阈值每件收费',      date:'2024/6 起扩展',  sev:'high'},
+    {cat:'低价费',  name:'低价 FBA 费率',            desc:'<$10 自动享 -$0.86/件，但 FBA 费 +$0.12',             date:'2025 升级',      sev:'low'},
+    {cat:'预处理',  name:'FBA Prep/Label 服务停止', desc:'入库必须已贴标预处理；非合规 +30% 罚款',             date:'2026/1/1',      sev:'mid'},
+    {cat:'账期',    name:'付款账期 DD+7',            desc:'交货 7 天后提现，新品启动资金多备 2 月',             date:'2026/3/5 (美)',  sev:'high'},
+    {cat:'老化',    name:'老化仓储费 181 天起征',    desc:'456+ 天 $7.90/ft³（新增最高档）',                    date:'2026/1/15',     sev:'mid'},
+    {cat:'油费',    name:'3.5% 油料附加费',         desc:'所有 FBA/MCF 单位，直接重算毛利',                   date:'2026/4/17',     sev:'mid'}
+  ]
+};
+
+/* ============================================================================
+   STATE & STORAGE
+============================================================================ */
+
+const STORAGE_KEY = 'amz-workbench-v1';
+let state = {
+  history:[],
+  dealbreaker_state:{},
+  dim_scores:{},
+  dealbreaker_active:{},
+  current:{name:'',source:'Sorftime Top100 扫榜',note:''}
+};
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      Object.assign(state,parsed);
+    }
+  }catch(e){console.warn('load state failed',e)}
+}
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  }catch(e){console.warn('save state failed',e)}
+}
+
+/* ============================================================================
+   INIT & NAVIGATION
+============================================================================ */
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadState();
+  renderDimensions();
+  renderDealbreakers();
+  renderThresholds();
+  renderSOP();
+  renderDealChecklist();
+  renderPrompts();
+  renderPolicies();
+  renderHistory();
+  renderDashboard();
+
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.addEventListener('click',()=>navigate(el.dataset.nav));
+  });
+  document.querySelectorAll('.action-card').forEach(el=>{
+    el.addEventListener('click',()=>navigate(el.dataset.jump));
+  });
+  document.getElementById('th-search').addEventListener('input',renderThresholds);
+
+  recomputeScore();
+});
+
+function navigate(target){
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.nav===target);
+  });
+  document.querySelectorAll('.page').forEach(el=>{
+    el.classList.toggle('active',el.dataset.page===target);
+  });
+  document.querySelector('.main').scrollTop=0;
+  if(target==='history') renderHistory();
+  if(target==='dashboard') renderDashboard();
+}
+
+/* ============================================================================
+   DASHBOARD
+============================================================================ */
+
+function renderDashboard(){
+  const total=state.history.length;
+  const go=state.history.filter(h=>h.band==='Go').length;
+  const pass=state.history.filter(h=>h.band==='Pass').length;
+  const avg=total?Math.round(state.history.reduce((a,h)=>a+h.score,0)/total):null;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-go').textContent=go;
+  document.getElementById('stat-pass').textContent=pass;
+  document.getElementById('stat-avg').textContent=avg!==null?avg:'—';
+
+  const recent=state.history.slice(0,3);
+  const wrap=document.getElementById('recent-list');
+  if(!recent.length){
+    wrap.innerHTML=`<div class="empty-state">
+      <div class="empty-state-mark">Begin Here</div>
+      <div class="empty-state-title">还没有评估记录</div>
+      <div class="empty-state-desc">进入机会评分器，开始你的第一个品类评估。所有数据仅保存在本机浏览器。</div>
+    </div>`;
+  }else{
+    wrap.innerHTML=`<div class="history-list">${recent.map(h=>historyCard(h)).join('')}</div>`;
+    attachHistoryHandlers(wrap);
+  }
+}
+
+/* ============================================================================
+   SCORER
+============================================================================ */
+
+function renderDimensions(){
+  const wrap=document.getElementById('dim-list');
+  wrap.innerHTML=DIMENSIONS.map(d=>{
+    const v=state.dim_scores[d.id]??50;
+    return `
+    <div class="dimension">
+      <div class="dim-info">
+        <div class="dim-name">${d.name}<span class="dim-weight">× ${d.weight}%</span></div>
+        <div class="dim-meta">${d.desc}</div>
+      </div>
+      <div class="dim-range">
+        <input type="range" class="dim-slider" min="0" max="100" step="5" value="${v}" data-dim="${d.id}">
+        <div class="dim-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+      </div>
+      <div class="dim-value" id="dv-${d.id}">${v}</div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.dim-slider').forEach(s=>{
+    s.addEventListener('input',e=>{
+      const id=e.target.dataset.dim;
+      const v=parseInt(e.target.value);
+      state.dim_scores[id]=v;
+      document.getElementById('dv-'+id).textContent=v;
+      recomputeScore();
+    });
+  });
+}
+
+function renderDealbreakers(){
+  const wrap=document.getElementById('deal-list');
+  wrap.innerHTML=DEALBREAKERS.map(d=>{
+    const checked=state.dealbreaker_active[d.id]?'checked':'';
+    return `
+    <label class="deal-chk">
+      <input type="checkbox" data-deal="${d.id}" ${checked}>
+      <div>
+        <div class="deal-chk-label">${d.label}${d.factor===0?'<span style="color:var(--red);font-size:10px;margin-left:6px;font-family:JetBrains Mono,monospace">× 0</span>':`<span style="color:var(--orange);font-size:10px;margin-left:6px;font-family:JetBrains Mono,monospace">× ${d.factor}</span>`}</div>
+        <span class="deal-chk-hint">${d.hint}</span>
+      </div>
+    </label>`;
+  }).join('');
+  wrap.querySelectorAll('input[data-deal]').forEach(el=>{
+    el.addEventListener('change',e=>{
+      state.dealbreaker_active[e.target.dataset.deal]=e.target.checked;
+      recomputeScore();
+    });
+  });
+}
+
+function recomputeScore(){
+  // 基础加权
+  let base=0;
+  const breakdown=[];
+  DIMENSIONS.forEach(d=>{
+    const v=state.dim_scores[d.id]??50;
+    const contrib=v*(d.weight/100);
+    base+=contrib;
+    breakdown.push({name:d.name,val:v,weight:d.weight,contrib:contrib.toFixed(2)});
+  });
+
+  // 乘法惩罚
+  let multiplier=1;
+  const activePenalties=[];
+  DEALBREAKERS.forEach(d=>{
+    if(state.dealbreaker_active[d.id]){
+      multiplier*=d.factor;
+      activePenalties.push(d);
+    }
+  });
+
+  const final=Math.round(base*multiplier);
+
+  // 档位
+  let band,bandClass,desc;
+  if(final>=80){band='Go';bandClass='band-go';desc='立即立项。供应商打样 → 3 周内开发 → 启动 IP 保护 + Listing 工程化。'}
+  else if(final>=65){band='Deep Dive';bandClass='band-deep';desc='进入 Step 3-5 深度分析。Keepa 全曲线 + Cerebro KW Gap + 痛点挖掘 + 利润测算，2 周内决定。'}
+  else if(final>=50){band='Hold';bandClass='band-hold';desc='放入观察池 4-8 周。等关键指标更新（搜索量、新品占比、Top 3 BSR 波动）。'}
+  else{band='Pass';bandClass='band-pass';desc='不再浪费资源。把信号记入经验库，迭代评分模型。'}
+
+  // 渲染
+  document.getElementById('score-val').innerHTML=`${final}<span class="result-score-suffix">/100</span>`;
+  const bandEl=document.getElementById('score-band');
+  bandEl.textContent=band;
+  bandEl.className='result-band '+bandClass;
+  document.getElementById('score-desc').textContent=desc;
+
+  // 惩罚提示
+  const pArea=document.getElementById('penalty-area');
+  if(activePenalties.length){
+    pArea.innerHTML=`<div class="penalty-active"><strong>触发 ${activePenalties.length} 条惩罚因子 (× ${multiplier.toFixed(2)})</strong>${activePenalties.map(p=>`· ${p.label}`).join('<br>')}</div>`;
+  }else{
+    pArea.innerHTML='';
+  }
+
+  // 分项明细
+  document.getElementById('score-breakdown').innerHTML=`
+    <div class="result-row" style="border-top:1px solid var(--border-soft);padding-top:12px;margin-top:6px"><span>基础加权</span><span class="result-row-val">${base.toFixed(2)}</span></div>
+    <div class="result-row"><span>乘法因子</span><span class="result-row-val">× ${multiplier.toFixed(2)}</span></div>
+    <div class="result-row" style="border-top:1px solid var(--border-soft);padding-top:8px;margin-top:4px;font-size:13px;color:var(--gold-warm)"><span>最终得分</span><span class="result-row-val" style="color:var(--gold)">${final}</span></div>
+  `;
+}
+
+function resetScorer(){
+  if(!confirm('确定清空当前评分？')) return;
+  state.dim_scores={};
+  state.dealbreaker_active={};
+  document.getElementById('cat-name').value='';
+  document.getElementById('cat-note').value='';
+  renderDimensions();
+  renderDealbreakers();
+  recomputeScore();
+  toast('已重置');
+}
+
+function collectCurrentEval(){
+  const name=document.getElementById('cat-name').value.trim();
+  const source=document.getElementById('cat-source').value;
+  const note=document.getElementById('cat-note').value.trim();
+  let base=0;
+  const dims={};
+  DIMENSIONS.forEach(d=>{
+    const v=state.dim_scores[d.id]??50;
+    dims[d.id]={name:d.name,value:v,weight:d.weight};
+    base+=v*(d.weight/100);
+  });
+  let multiplier=1;
+  const penalties=[];
+  DEALBREAKERS.forEach(d=>{
+    if(state.dealbreaker_active[d.id]){
+      multiplier*=d.factor;
+      penalties.push(d.label);
+    }
+  });
+  const score=Math.round(base*multiplier);
+  let band;
+  if(score>=80) band='Go';
+  else if(score>=65) band='Deep Dive';
+  else if(score>=50) band='Hold';
+  else band='Pass';
+  return {id:Date.now(),ts:new Date().toISOString(),name:name||'(未命名品类)',source,note,dims,penalties,base:+base.toFixed(2),multiplier:+multiplier.toFixed(2),score,band};
+}
+
+function saveEvaluation(){
+  const name=document.getElementById('cat-name').value.trim();
+  if(!name){
+    if(!confirm('尚未填写品类名称。仍要保存吗？')) return;
+  }
+  const ev=collectCurrentEval();
+  state.history.unshift(ev);
+  saveState();
+  toast(`已保存："${ev.name}" (${ev.score} / ${ev.band})`);
+}
+
+function exportCurrentMd(){
+  const ev=collectCurrentEval();
+  const md=evalToMarkdown(ev);
+  downloadText(`评估_${ev.name}_${formatDate(ev.ts)}.md`,md);
+  toast('已导出 Markdown 报告');
+}
+function exportCurrentJson(){
+  const ev=collectCurrentEval();
+  downloadText(`评估_${ev.name}_${formatDate(ev.ts)}.json`,JSON.stringify(ev,null,2));
+  toast('已导出 JSON');
+}
+
+function evalToMarkdown(ev){
+  const lines=[];
+  lines.push(`# 亚马逊品类机会评估报告`);
+  lines.push(``);
+  lines.push(`**品类**：${ev.name}  `);
+  lines.push(`**评估时间**：${new Date(ev.ts).toLocaleString('zh-CN')}  `);
+  lines.push(`**信号来源**：${ev.source}  `);
+  lines.push(``);
+  lines.push(`---`);
+  lines.push(``);
+  lines.push(`## 决策结果`);
+  lines.push(``);
+  lines.push(`> **机会指数：${ev.score} / 100** → **${ev.band}**`);
+  lines.push(``);
+  lines.push(`- 基础加权：${ev.base}`);
+  lines.push(`- 乘法因子：× ${ev.multiplier}`);
+  if(ev.penalties.length) lines.push(`- 触发惩罚：${ev.penalties.join('、')}`);
+  lines.push(``);
+  lines.push(`## 九维度明细`);
+  lines.push(``);
+  lines.push(`| 维度 | 得分 | 权重 | 贡献 |`);
+  lines.push(`|---|---|---|---|`);
+  Object.values(ev.dims).forEach(d=>{
+    lines.push(`| ${d.name} | ${d.value} | ${d.weight}% | ${(d.value*d.weight/100).toFixed(2)} |`);
+  });
+  lines.push(``);
+  if(ev.note){
+    lines.push(`## 备注`);
+    lines.push(``);
+    lines.push(ev.note);
+    lines.push(``);
+  }
+  lines.push(`---`);
+  lines.push(`*由跨境娜娜亚马逊市场分析工作台生成 · v1.0*`);
+  return lines.join('\n');
+}
+
+/* ============================================================================
+   THRESHOLDS
+============================================================================ */
+
+function renderThresholds(){
+  const search=(document.getElementById('th-search').value||'').trim().toLowerCase();
+  const active=document.querySelector('#th-chips .chip.active')?.dataset.cat||'全部';
+  const cats=['全部',...new Set(THRESHOLDS.map(t=>t.cat))];
+  document.getElementById('th-chips').innerHTML=cats.map(c=>
+    `<button class="chip ${c===active?'active':''}" data-cat="${c}">${c}</button>`).join('');
+  document.querySelectorAll('#th-chips .chip').forEach(el=>{
+    el.addEventListener('click',()=>{
+      document.querySelectorAll('#th-chips .chip').forEach(x=>x.classList.remove('active'));
+      el.classList.add('active');
+      renderThresholds();
+    });
+  });
+
+  const list=THRESHOLDS.filter(t=>{
+    const matchCat=active==='全部'||t.cat===active;
+    const matchSearch=!search||JSON.stringify(t).toLowerCase().includes(search);
+    return matchCat&&matchSearch;
+  });
+  document.getElementById('th-tbody').innerHTML=list.map(t=>`
+    <tr>
+      <td style="color:var(--gold);font-size:11px;font-family:JetBrains Mono,monospace;letter-spacing:.08em">${t.cat}</td>
+      <td style="font-weight:500">${t.ind}</td>
+      <td><span class="light-tag light-g">${t.g}</span></td>
+      <td><span class="light-tag light-y">${t.y}</span></td>
+      <td><span class="light-tag light-r">${t.r}</span></td>
+      <td style="color:var(--text-3);font-size:12px">${t.src}</td>
+      <td style="color:var(--text-2);font-size:12px">${t.note}</td>
+    </tr>`).join('')||`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-3)">未找到匹配的指标</td></tr>`;
+}
+
+/* ============================================================================
+   SOP
+============================================================================ */
+
+function renderSOP(){
+  const wrap=document.getElementById('sop-list');
+  wrap.innerHTML=SOP_LAYERS.map((l,i)=>`
+    <div class="sop-layer" data-idx="${i}">
+      <div class="sop-head">
+        <div class="sop-num">${l.num}</div>
+        <div class="sop-head-info">
+          <h3>${l.title}</h3>
+          <p>${l.desc}</p>
+        </div>
+        <div class="sop-head-meta">展开 ↓</div>
+      </div>
+      <div class="sop-body">
+        <div class="sop-grid">
+          <div class="sop-block">
+            <h4>工具与操作</h4>
+            <ul>${l.tools.map(t=>`<li>${t}</li>`).join('')}</ul>
+          </div>
+          <div class="sop-block">
+            <h4>输出物</h4>
+            <ul>${l.outputs.map(t=>`<li>${t}</li>`).join('')}</ul>
+          </div>
+        </div>
+        ${l.dealbreaker?`<div class="sop-gate"><strong>闸门 / 否决条件</strong>${l.dealbreaker}</div>`:''}
+      </div>
+    </div>`).join('');
+  wrap.querySelectorAll('.sop-layer').forEach(el=>{
+    el.querySelector('.sop-head').addEventListener('click',()=>{
+      el.classList.toggle('expanded');
+      const meta=el.querySelector('.sop-head-meta');
+      meta.textContent=el.classList.contains('expanded')?'收起 ↑':'展开 ↓';
+    });
+  });
+}
+
+/* ============================================================================
+   DEAL CHECKLIST
+============================================================================ */
+
+function renderDealChecklist(){
+  const wrap=document.getElementById('deal-items');
+  wrap.innerHTML=DEAL_CHECKLIST.map((d,i)=>{
+    const checked=state.dealbreaker_state[i]?'checked':'';
+    return `
+    <label class="deal-item ${checked?'triggered':''}" data-idx="${i}">
+      <input type="checkbox" ${checked} data-chk="${i}">
+      <span class="deal-item-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="deal-item-text">${d.text}</span>
+      <span class="deal-item-cat">${d.cat}</span>
+    </label>`;
+  }).join('');
+  wrap.querySelectorAll('input[data-chk]').forEach(el=>{
+    el.addEventListener('change',e=>{
+      const idx=e.target.dataset.chk;
+      state.dealbreaker_state[idx]=e.target.checked;
+      saveState();
+      updateDealSummary();
+      e.target.closest('.deal-item').classList.toggle('triggered',e.target.checked);
+    });
+  });
+  updateDealSummary();
+}
+
+function updateDealSummary(){
+  const count=Object.values(state.dealbreaker_state).filter(Boolean).length;
+  const sumEl=document.getElementById('deal-summary');
+  const titleEl=document.getElementById('deal-sum-title');
+  const subEl=document.getElementById('deal-sum-sub');
+  const bandEl=document.getElementById('deal-sum-band');
+  if(count===0){
+    sumEl.classList.remove('triggered');
+    titleEl.textContent='尚未触发任何否决线';
+    subEl.textContent='勾选所有已确认的风险条款，系统会实时给出是否继续的建议。';
+    bandEl.textContent='继续';
+    bandEl.className='result-band band-go';
+  }else{
+    sumEl.classList.add('triggered');
+    titleEl.textContent=`已触发 ${count} 条否决线`;
+    subEl.textContent='任一触发即建议停止本品类分析，重新找品。硬着头皮上 = 亏损确定性 > 盈利可能性。';
+    bandEl.textContent='停止';
+    bandEl.className='result-band band-pass';
+  }
+}
+
+function resetDealbreaker(){
+  if(!confirm('确定清空否决清单？')) return;
+  state.dealbreaker_state={};
+  saveState();
+  renderDealChecklist();
+  toast('已清空');
+}
+
+/* ============================================================================
+   PROMPTS
+============================================================================ */
+
+function renderPrompts(){
+  document.getElementById('prompt-grid').innerHTML=PROMPTS.map(p=>`
+    <div class="prompt-card">
+      <div class="prompt-num">PROMPT · ${p.n}</div>
+      <div class="prompt-title">${p.title}</div>
+      <span class="prompt-use">${p.use}</span>
+      <div class="prompt-desc">${p.desc}</div>
+      <div class="prompt-preview">${escapeHtml(p.content.substring(0,280))}...</div>
+      <div class="prompt-actions">
+        <button class="btn btn-sm" onclick="viewPrompt('${p.n}')">查看完整</button>
+        <button class="btn btn-sm btn-primary" onclick="copyPrompt('${p.n}')">复制</button>
+      </div>
+    </div>`).join('');
+}
+
+function viewPrompt(n){
+  const p=PROMPTS.find(x=>x.n===n);
+  document.getElementById('modal-title').textContent=`Prompt ${p.n} · ${p.title}`;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="margin-bottom:16px">
+      <span class="prompt-use">${p.use}</span>
+      <span style="color:var(--text-2);margin-left:12px;font-size:13px">${p.desc}</span>
+    </div>
+    <pre>${escapeHtml(p.content)}</pre>
+    <div style="margin-top:20px;text-align:right">
+      <button class="btn btn-primary" onclick="copyPrompt('${p.n}');closeModal()">复制并关闭</button>
+    </div>`;
+  openModal();
+}
+function copyPrompt(n){
+  const p=PROMPTS.find(x=>x.n===n);
+  copyToClipboard(p.content);
+  toast(`已复制 Prompt ${p.n}：${p.title}`);
+}
+
+/* ============================================================================
+   POLICIES
+============================================================================ */
+
+function renderPolicies(){
+  const render=(list)=>list.map(p=>`
+    <div class="policy-item">
+      <div class="policy-cat">${p.cat}</div>
+      <div>
+        <div class="policy-name">${p.name}</div>
+        <div class="policy-desc">${p.desc}</div>
+      </div>
+      <div class="policy-date">${p.date}</div>
+      <div class="policy-sev sev-${p.sev}">${p.sev==='high'?'高风险':p.sev==='mid'?'中':'低'}</div>
+    </div>`).join('');
+  document.getElementById('policy-tariff').innerHTML=render(POLICIES.tariff);
+  document.getElementById('policy-compliance').innerHTML=render(POLICIES.compliance);
+  document.getElementById('policy-platform').innerHTML=render(POLICIES.platform);
+}
+
+/* ============================================================================
+   HISTORY
+============================================================================ */
+
+function renderHistory(){
+  const wrap=document.getElementById('history-list');
+  if(!state.history.length){
+    wrap.innerHTML=`<div class="empty-state">
+      <div class="empty-state-mark">Archive Empty</div>
+      <div class="empty-state-title">还没有保存过评估</div>
+      <div class="empty-state-desc">所有评估结果都将自动归档，用于对照过往判断、训练决策直觉。</div>
+    </div>`;
+    return;
+  }
+  wrap.innerHTML=`<div class="history-list">${state.history.map(h=>historyCard(h)).join('')}</div>`;
+  attachHistoryHandlers(wrap);
+}
+
+function historyCard(h){
+  let bandCls='band-pass';
+  if(h.band==='Go') bandCls='band-go';
+  else if(h.band==='Deep Dive') bandCls='band-deep';
+  else if(h.band==='Hold') bandCls='band-hold';
+  return `
+    <div class="history-item" data-id="${h.id}">
+      <button class="history-del" onclick="event.stopPropagation();deleteHistory(${h.id})" title="删除">✕</button>
+      <div class="history-date">${formatDate(h.ts)}</div>
+      <div class="history-cat">${h.name}</div>
+      <div class="history-score">
+        <span class="history-score-num">${h.score}</span>
+        <span class="result-band ${bandCls}" style="margin-top:0">${h.band}</span>
+      </div>
+      <div class="history-meta">
+        <span>${h.source}</span>
+        ${h.penalties.length?`<span style="color:var(--red)">惩罚 ${h.penalties.length}</span>`:''}
+      </div>
+    </div>`;
+}
+function attachHistoryHandlers(wrap){
+  wrap.querySelectorAll('.history-item').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const id=parseInt(el.dataset.id);
+      const h=state.history.find(x=>x.id===id);
+      if(h) showHistoryDetail(h);
+    });
+  });
+}
+function showHistoryDetail(h){
+  document.getElementById('modal-title').textContent=h.name;
+  const md=evalToMarkdown(h);
+  document.getElementById('modal-body').innerHTML=`<pre>${escapeHtml(md)}</pre>
+    <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="navigator.clipboard.writeText(\`${md.replace(/`/g,'\\`')}\`);toast('已复制 Markdown')">复制 MD</button>
+      <button class="btn btn-primary" onclick="closeModal()">关闭</button>
+    </div>`;
+  openModal();
+}
+function deleteHistory(id){
+  if(!confirm('确定删除此条评估？')) return;
+  state.history=state.history.filter(h=>h.id!==id);
+  saveState();
+  renderHistory();
+  renderDashboard();
+  toast('已删除');
+}
+function clearHistory(){
+  if(!confirm('清空所有评估记录？此操作不可恢复，建议先导出备份。')) return;
+  state.history=[];
+  saveState();
+  renderHistory();
+  renderDashboard();
+  toast('已清空');
+}
+function exportAllHistory(){
+  if(!state.history.length){toast('暂无数据可导出');return}
+  const payload={version:'1.0',exported_at:new Date().toISOString(),history:state.history};
+  downloadText(`跨境娜娜_评估备份_${formatDate(new Date().toISOString())}.json`,JSON.stringify(payload,null,2));
+  toast(`已导出 ${state.history.length} 条记录`);
+}
+function importHistory(ev){
+  const file=ev.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.history||!Array.isArray(data.history)) throw new Error('格式错误');
+      if(!confirm(`将导入 ${data.history.length} 条评估，与现有记录合并。继续？`)) return;
+      const existIds=new Set(state.history.map(h=>h.id));
+      const newOnes=data.history.filter(h=>!existIds.has(h.id));
+      state.history=[...newOnes,...state.history].sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+      saveState();
+      renderHistory();
+      renderDashboard();
+      toast(`已导入 ${newOnes.length} 条新记录`);
+    }catch(err){
+      alert('导入失败：'+err.message);
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value='';
+}
+
+/* ============================================================================
+   UTILITIES
+============================================================================ */
+
+function openModal(){document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+document.addEventListener('click',e=>{
+  if(e.target.id==='modal') closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeModal();
+});
+
+function copyToClipboard(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));
+  }else{fallbackCopy(text)}
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+}
+
+function downloadText(filename,content){
+  const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a)},100);
+}
+
+function formatDate(iso){
+  const d=new Date(iso);
+  const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function toast(msg){
+  const existing=document.querySelector('.toast');
+  if(existing) existing.remove();
+  const t=document.createElement('div');
+  t.className='toast';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.style.opacity='0',2400);
+  setTimeout(()=>t.remove(),2800);
+}
+</script>
+</body>
+</html>
